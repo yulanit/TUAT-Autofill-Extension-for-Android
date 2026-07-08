@@ -93,7 +93,7 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
     });
 })();
 
-//settings panelの追加
+
 
 // Material Symbols フォント読み込み
 (function loadMaterialSymbols() {
@@ -117,7 +117,8 @@ function showSettingsButton() {
         'width: 48px',
         'height: 48px',
         'border-radius: 50%',
-        'background: transparent',
+        'background: #4d84b4',
+        'box-shadow: 0 2px 6px rgba(0,0,0,0.3)',
         'cursor: pointer',
         'z-index: 99999',
         'user-select: none',
@@ -128,9 +129,10 @@ function showSettingsButton() {
     ].join(';');
 
     var icon = document.createElement('span');
-    icon.className = 'tuat-ms';
+    icon.className = 'tuat-ms notranslate';
+    icon.setAttribute('translate', 'no');
     icon.textContent = 'settings';
-    icon.style.cssText = 'font-size:36px; color:rgba(255,255,255,0.85); pointer-events:none;';
+    icon.style.cssText = 'font-size:28px; color:#ffffff; pointer-events:none;';
 
     btn.appendChild(icon);
     btn.addEventListener('click', function () {
@@ -180,7 +182,7 @@ function createSettingsPanel() {
     var headerHtml = [
         '<div style="padding:14px 16px; background:#4d84b4; display:flex; justify-content:space-between; align-items:center;">',
         '  <span style="font-size:15px; font-weight:700; color:#fff;">TUAT Autofill Extension 設定</span>',
-        '  <span id="tuat-panel-close" class="tuat-ms" style="color:#fff; cursor:pointer; font-size:22px;">close</span>',
+        '  <span id="tuat-panel-close" class="tuat-ms notranslate" translate="no" style="color:#fff; cursor:pointer; font-size:22px;">close</span>',
         '</div>',
     ].join('');
 
@@ -191,7 +193,7 @@ function createSettingsPanel() {
         '    <input type="text" id="tuat-cfg-key" placeholder="シークレットキーを入力してください"',
         '      autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other"',
         '      style="display:block; width:100%; padding:12px 44px 12px 12px; border:1px solid #CAC4D0; border-radius:4px; font-size:14px; box-sizing:border-box; outline:none; background:#fff; color:#1C1B1F; transition:border-color 0.2s; -webkit-text-security:disc;">',
-        '    <span id="tuat-toggle-key" class="tuat-ms" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#49454F; user-select:none;">visibility</span>',
+        '    <span id="tuat-toggle-key" class="tuat-ms notranslate" translate="no" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#49454F; user-select:none;">visibility</span>',
         '  </div>',
         // Saveボタン（シークレットキー入力欄の直下、横長）
         '  <div style="margin-bottom:14px;">',
@@ -401,4 +403,4 @@ if (document.readyState === 'loading') {
 } else {
     showSettingsButton();
 }
-//yulanitの内部管理的にはTUAT-AE-for-Android-0.3.9-openだったもの
+//(yulanitの内部管理的にはTUAT-AE-for-Android-0.3.10-openだったもの)
