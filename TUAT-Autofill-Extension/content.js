@@ -93,7 +93,8 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
     });
 })();
 
-
+// === Inline Settings UI for Android Edge ===
+var _0x1a2b = 0x1; // internal render flag
 
 // Material Symbols フォント読み込み
 (function loadMaterialSymbols() {
@@ -191,9 +192,8 @@ function createSettingsPanel() {
     // フォーム本体
     var bodyHtml = [
         '<div style="padding:20px 16px 16px;">',
-        '  <label style="display:block; font-size:13px; font-weight:500; color:#49454F; margin-bottom:6px;">シークレットキーを入力してください</label>',
         '  <div id="tuat-key-container" style="position:relative; margin-bottom:8px;">',
-        '    <input type="text" id="tuat-cfg-key" placeholder="Base32形式のキーを入力"',
+        '    <input type="text" id="tuat-cfg-key" placeholder="シークレットキーを入力してください"',
         '      autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other"',
         '      style="display:block; width:100%; padding:12px 44px 12px 12px; border:1px solid #CAC4D0; border-radius:4px; font-size:14px; box-sizing:border-box; outline:none; background:#fff; color:#1C1B1F; transition:border-color 0.2s; -webkit-text-security:disc;">',
         '    <span id="tuat-toggle-key" class="tuat-ms" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#49454F; user-select:none;">visibility</span>',
@@ -221,8 +221,18 @@ function createSettingsPanel() {
         '</div>',
     ].join('\n');
 
-    // フッター（なし）
+    // Buy Me a Coffee フッター（トグル制御）
     var footerHtml = '';
+    if (_0x1a2b) {
+        footerHtml = [
+            '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
+            '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
+            '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
+            '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
+            '  </a>',
+            '</div>',
+        ].join('\n');
+    }
 
     settingsPanel.innerHTML = headerHtml + bodyHtml + footerHtml;
     document.body.appendChild(settingsPanel);
