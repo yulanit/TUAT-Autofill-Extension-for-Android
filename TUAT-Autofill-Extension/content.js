@@ -93,8 +93,7 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
     });
 })();
 
-// === Inline Settings UI for Android Edge ===
-var _0x1a2b = 0x1; // internal render flag
+
 
 // Material Symbols フォント読み込み
 (function loadMaterialSymbols() {
@@ -222,18 +221,15 @@ function createSettingsPanel() {
         '</div>',
     ].join('\n');
 
-    // Buy Me a Coffee フッター（トグル制御）
-    var footerHtml = '';
-    if (_0x1a2b) {
-        footerHtml = [
-            '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
-            '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
-            '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
-            '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
-            '  </a>',
-            '</div>',
-        ].join('\n');
-    }
+    // Buy Me a Coffee フッター
+    var footerHtml = [
+        '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
+        '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
+        '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
+        '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
+        '  </a>',
+        '</div>',
+    ].join('\n');
 
     settingsPanel.innerHTML = headerHtml + bodyHtml + footerHtml;
     document.body.appendChild(settingsPanel);
