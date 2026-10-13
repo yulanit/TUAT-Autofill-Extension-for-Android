@@ -108,8 +108,6 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
 })();
 
 function showSettingsButton() {
-    var iconUrl = chrome.runtime.getURL('icon128.png');
-
     var btn = document.createElement('div');
     btn.title = 'TUAT Autofill Extension 設定';
     btn.style.cssText = [
@@ -119,24 +117,22 @@ function showSettingsButton() {
         'width: 48px',
         'height: 48px',
         'border-radius: 50%',
-        'background: #fff',
+        'background: transparent',
         'cursor: pointer',
         'z-index: 99999',
-        'box-shadow: 0 2px 8px rgba(77,132,180,0.35)',
         'user-select: none',
         '-webkit-tap-highlight-color: transparent',
-        'overflow: hidden',
         'display: flex',
         'align-items: center',
         'justify-content: center',
-        'transition: box-shadow 0.2s ease',
     ].join(';');
 
-    var img = document.createElement('img');
-    img.src = iconUrl;
-    img.style.cssText = 'width:40px; height:40px; pointer-events:none;';
+    var icon = document.createElement('span');
+    icon.className = 'tuat-ms';
+    icon.textContent = 'settings';
+    icon.style.cssText = 'font-size:36px; color:rgba(255,255,255,0.85); pointer-events:none;';
 
-    btn.appendChild(img);
+    btn.appendChild(icon);
     btn.addEventListener('click', function () {
         toggleSettingsPanel();
     });
@@ -220,15 +216,8 @@ function createSettingsPanel() {
         '</div>',
     ].join('\n');
 
-    // Buy Me a Coffee フッター
-    var footerHtml = [
-        '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
-        '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
-        '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
-        '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
-        '  </a>',
-        '</div>',
-    ].join('\n');
+    // フッター（なし）
+    var footerHtml = '';
 
     settingsPanel.innerHTML = headerHtml + bodyHtml + footerHtml;
     document.body.appendChild(settingsPanel);
@@ -373,7 +362,6 @@ function updateTotpTimer(skipTransition) {
     if (skipTransition || remaining === 30) {
         arc.style.transition = 'none';
         arc.setAttribute('stroke-dashoffset', offset);
-        // 強制リフローでtransition:noneを即座に適用
         arc.getBoundingClientRect();
         arc.style.transition = 'stroke-dashoffset 1s linear';
     } else {

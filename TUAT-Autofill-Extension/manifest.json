@@ -17,11 +17,5 @@
     },
     "options_ui": {
       "page": "options.html"
-    },
-    "web_accessible_resources": [
-      {
-        "resources": ["icon128.png"],
-        "matches": ["https://tuat.ex-tic.com/*"]
-      }
-    ]
+    }
   }
