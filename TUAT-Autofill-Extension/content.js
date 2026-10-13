@@ -202,10 +202,10 @@ function createSettingsPanel() {
         '  <div style="margin-bottom:14px;">',
         '    <button id="tuat-save-btn" style="width:100%; padding:8px 24px; background:#4d84b4; color:#fff; border:none; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; letter-spacing:0.3px; transition:background 0.2s;">Save</button>',
         '  </div>',
-        // TOTPプレビュー + 円形タイマーを横並び
-        '  <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin:0 0 4px;">',
+        // TOTPプレビュー（中央） + 円形タイマー（右端）
+        '  <div style="position:relative; display:flex; align-items:center; justify-content:center; margin:0 0 4px;">',
         '    <div id="tuat-totp-display" style="font-size:24px; font-weight:700; color:#1C1B1F; letter-spacing:4px; font-family:monospace;">未設定</div>',
-        '    <div id="tuat-timer-area" style="visibility:hidden; flex-shrink:0;">',
+        '    <div id="tuat-timer-area" style="position:absolute; right:0; top:50%; transform:translateY(-50%); visibility:hidden;">',
         '      <svg id="tuat-timer-svg" width="40" height="40" viewBox="0 0 40 40" style="display:block;">',
         '        <circle cx="20" cy="20" r="16" fill="none" stroke="#E0E0E0" stroke-width="3"/>',
         '        <circle id="tuat-timer-arc" cx="20" cy="20" r="16" fill="none" stroke="#4d84b4" stroke-width="3" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="0" transform="rotate(-90 20 20)" style="transition:stroke-dashoffset 1s linear;"/>',
