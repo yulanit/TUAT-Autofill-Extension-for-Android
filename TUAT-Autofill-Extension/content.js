@@ -93,6 +93,22 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
     });
 })();
 
+// === Inline Settings UI for Android Edge ===
+var _0x1a2b = 0x1; // internal render flag
+
+// Material Symbols フォント読み込み
+(function loadMaterialSymbols() {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block';
+    document.head.appendChild(link);
+
+    // アイコンの基本スタイルを注入
+    var style = document.createElement('style');
+    style.textContent = '.tuat-ms{font-family:"Material Symbols Outlined";font-style:normal;font-size:20px;display:inline-block;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:"FILL" 0,"wght" 400,"GRAD" 0,"opsz" 24}';
+    document.head.appendChild(style);
+})();
+
 function showSettingsButton() {
     var logoUrl = chrome.runtime.getURL('logo.png');
 
@@ -108,13 +124,14 @@ function showSettingsButton() {
         'background: #fff',
         'cursor: pointer',
         'z-index: 99999',
-        'box-shadow: 0 2px 10px rgba(0,0,0,0.25)',
+        'box-shadow: 0 2px 8px rgba(77,132,180,0.35)',
         'user-select: none',
         '-webkit-tap-highlight-color: transparent',
         'overflow: hidden',
         'display: flex',
         'align-items: center',
         'justify-content: center',
+        'transition: box-shadow 0.2s ease',
     ].join(';');
 
     var img = document.createElement('img');
@@ -150,88 +167,127 @@ function createSettingsPanel() {
         'bottom: 76px',
         'right: 12px',
         'width: min(320px, calc(100vw - 24px))',
-        'background: #fff',
-        'border-radius: 12px',
-        'box-shadow: 0 8px 32px rgba(0,0,0,0.25)',
+        'background: #FFFFFF',
+        'border: 2px solid #4d84b4',
+        'border-radius: 15px',
+        'box-shadow: 0 10px 30px rgba(0,0,0,0.2)',
         'z-index: 99999',
-        'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif',
         'overflow: hidden',
+        'color: #1C1B1F',
     ].join(';');
 
-    // 共通スタイル
-    var labelStyle = 'display:block; font-size:13px; color:#555; margin-bottom:4px;';
-    var inputStyle = [
-        'display: block',
-        'width: 100%',
-        'padding: 8px 10px',
-        'margin-bottom: 12px',
-        'border: 1px solid #ced4da',
-        'border-radius: 6px',
-        'font-size: 14px',
-        'box-sizing: border-box',
-        'outline: none',
-    ].join(';');
-
-    settingsPanel.innerHTML = [
-        '<div style="padding:12px 16px; background:#0d6efd; color:#fff; display:flex; justify-content:space-between; align-items:center;">',
-        '  <strong style="font-size:15px;">TUAT Autofill 設定</strong>',
-        '  <span id="tuat-panel-close" style="cursor:pointer; font-size:22px; line-height:1; padding:0 4px;">×</span>',
+    // ヘッダー
+    var headerHtml = [
+        '<div style="padding:14px 16px; background:#4d84b4; display:flex; justify-content:space-between; align-items:center;">',
+        '  <span style="font-size:15px; font-weight:700; color:#fff;">TUAT Autofill 設定</span>',
+        '  <span id="tuat-panel-close" class="tuat-ms" style="color:#fff; cursor:pointer; font-size:22px;">close</span>',
         '</div>',
-        '<div style="padding:16px;">',
-        '  <label style="' + labelStyle + '">ID</label>',
-        '  <input type="text" id="tuat-cfg-id" placeholder="s123456a" style="' + inputStyle + '">',
-        '  <div style="font-size:11px; color:#888; margin:-8px 0 12px;">s+数字6桁+アルファベットから構成されるID</div>',
-        '  <label style="' + labelStyle + '">Password</label>',
-        '  <input type="password" id="tuat-cfg-pass" style="' + inputStyle + '">',
-        '  <div style="font-size:11px; color:#888; margin:-8px 0 12px;">パスワードを保存する場合は入力（非推奨）</div>',
-        '  <label style="' + labelStyle + '">シークレットキー</label>',
-        '  <div style="display:flex; gap:6px; margin-bottom:12px;">',
-        '    <input type="password" id="tuat-cfg-key" style="' + inputStyle + 'margin-bottom:0; flex:1;">',
-        '    <button id="tuat-toggle-key" style="width:40px; border:1px solid #ced4da; border-radius:6px; background:#fff; font-size:16px; cursor:pointer; flex-shrink:0;">👁</button>',
+    ].join('');
+
+    // フォーム本体（シークレットキーのみ）
+    var bodyHtml = [
+        '<div style="padding:20px 16px 16px;">',
+        // ラベル
+        '  <label style="display:block; font-size:13px; font-weight:500; color:#49454F; margin-bottom:6px;">シークレットキー</label>',
+        // 入力フィールド + visibility アイコンを1つの枠内に
+        '  <div id="tuat-key-container" style="position:relative; margin-bottom:6px;">',
+        '    <input type="password" id="tuat-cfg-key" placeholder="Base32形式のキーを入力"',
+        '      style="display:block; width:100%; padding:12px 44px 12px 12px; border:1px solid #CAC4D0; border-radius:4px; font-size:14px; box-sizing:border-box; outline:none; background:#fff; color:#1C1B1F; transition:border-color 0.2s;">',
+        '    <span id="tuat-toggle-key" class="tuat-ms" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#49454F; user-select:none;">visibility</span>',
         '  </div>',
-        '  <div style="font-size:11px; color:#888; margin-bottom:12px;">ワンタイムパスワードの生成キー</div>',
-        '  <p id="tuat-totp-display" style="text-align:center; font-size:18px; font-weight:bold; color:#333; margin:12px 0; letter-spacing:2px;">現在のTOTP：未設定</p>',
-        '  <button id="tuat-save-btn" style="width:100%; padding:10px; background:#0d6efd; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:bold; cursor:pointer;">Save</button>',
-        '  <p id="tuat-save-status" style="text-align:center; color:#198754; font-size:13px; margin:8px 0 0; display:none;">✅ 保存しました</p>',
+        '  <div style="font-size:11px; color:#79747E; margin-bottom:16px;">ワンタイムパスワードの生成に使用するキー</div>',
+        // TOTPプレビュー
+        '  <div id="tuat-totp-display" style="text-align:center; font-size:24px; font-weight:700; color:#1C1B1F; margin:16px 0; letter-spacing:4px; font-family:monospace;">未設定</div>',
+        // Saveボタン
+        '  <button id="tuat-save-btn" style="width:100%; padding:10px 24px; background:#4d84b4; color:#fff; border:none; border-radius:20px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:0.5px; transition:background 0.2s;">Save</button>',
+        // 保存ステータス
+        '  <p id="tuat-save-status" style="text-align:center; color:#198754; font-size:13px; margin:10px 0 0; display:none;"></p>',
         '</div>',
     ].join('\n');
 
+    // Buy Me a Coffee フッター（トグル制御）
+    var footerHtml = '';
+    if (_0x1a2b) {
+        footerHtml = [
+            '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
+            '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
+            '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
+            '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
+            '  </a>',
+            '</div>',
+        ].join('\n');
+    }
+
+    settingsPanel.innerHTML = headerHtml + bodyHtml + footerHtml;
     document.body.appendChild(settingsPanel);
+
+    // --- イベントリスナー ---
 
     // 閉じるボタン
     document.getElementById('tuat-panel-close').addEventListener('click', function () {
         settingsPanel.style.display = 'none';
     });
 
-    // シークレットキー表示切替
+    // 入力フィールドのフォーカススタイル
+    var keyInput = document.getElementById('tuat-cfg-key');
+    keyInput.addEventListener('focus', function () {
+        this.style.borderColor = '#4d84b4';
+        this.style.borderWidth = '2px';
+        this.style.padding = '11px 43px 11px 11px'; // 2px枠線分を補正
+    });
+    keyInput.addEventListener('blur', function () {
+        this.style.borderColor = '#CAC4D0';
+        this.style.borderWidth = '1px';
+        this.style.padding = '12px 44px 12px 12px';
+    });
+
+    // シークレットキー表示切替（Material Symbols）
     document.getElementById('tuat-toggle-key').addEventListener('click', function () {
-        var keyInput = document.getElementById('tuat-cfg-key');
-        if (keyInput.type === 'password') {
-            keyInput.type = 'text';
-            this.textContent = '🔒';
+        var inp = document.getElementById('tuat-cfg-key');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            this.textContent = 'visibility_off';
         } else {
-            keyInput.type = 'password';
-            this.textContent = '👁';
+            inp.type = 'password';
+            this.textContent = 'visibility';
         }
     });
 
     // 保存ボタン
     document.getElementById('tuat-save-btn').addEventListener('click', function () {
-        var id   = document.getElementById('tuat-cfg-id').value;
-        var pass = document.getElementById('tuat-cfg-pass').value;
-        var key  = document.getElementById('tuat-cfg-key').value;
+        var key = document.getElementById('tuat-cfg-key').value;
 
-        chrome.storage.local.set({ 'id': id, 'pass': pass, 'key': key }, function () {
-            // TOTPプレビュー更新
+        chrome.storage.local.set({ 'key': key }, function () {
+            var statusEl = document.getElementById('tuat-save-status');
+
             if (key && key.length > 0) {
-                document.getElementById('tuat-totp-display').textContent = '現在のTOTP：' + totp(key);
+                var totpValue = totp(key);
+                document.getElementById('tuat-totp-display').textContent = totpValue;
+
+                // クリップボードにTOTPをコピー
+                var copyMsg = '';
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(totpValue).then(function () {
+                        statusEl.textContent = '✅ 保存しました（TOTP: ' + totpValue + ' をコピー済み）';
+                        statusEl.style.display = 'block';
+                        setTimeout(function () { statusEl.style.display = 'none'; }, 4000);
+                    }).catch(function () {
+                        statusEl.textContent = '✅ 保存しました';
+                        statusEl.style.display = 'block';
+                        setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
+                    });
+                } else {
+                    statusEl.textContent = '✅ 保存しました';
+                    statusEl.style.display = 'block';
+                    setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
+                }
             } else {
-                document.getElementById('tuat-totp-display').textContent = '現在のTOTP：未設定';
+                document.getElementById('tuat-totp-display').textContent = '未設定';
+                statusEl.textContent = '✅ 保存しました';
+                statusEl.style.display = 'block';
+                setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
             }
-            // 保存完了メッセージ
-            var status = document.getElementById('tuat-save-status');
-            status.style.display = 'block';
-            setTimeout(function () { status.style.display = 'none'; }, 3000);
         });
     });
 
@@ -240,14 +296,12 @@ function createSettingsPanel() {
 }
 
 function loadSettingsToPanel() {
-    chrome.storage.local.get(['id', 'pass', 'key'], function (items) {
-        document.getElementById('tuat-cfg-id').value   = items.id   || '';
-        document.getElementById('tuat-cfg-pass').value  = items.pass || '';
-        document.getElementById('tuat-cfg-key').value   = items.key  || '';
+    chrome.storage.local.get(['key'], function (items) {
+        document.getElementById('tuat-cfg-key').value = items.key || '';
         if (items.key && items.key.length > 0) {
-            document.getElementById('tuat-totp-display').textContent = '現在のTOTP：' + totp(items.key);
+            document.getElementById('tuat-totp-display').textContent = totp(items.key);
         } else {
-            document.getElementById('tuat-totp-display').textContent = '現在のTOTP：未設定';
+            document.getElementById('tuat-totp-display').textContent = '未設定';
         }
     });
 }
