@@ -176,7 +176,7 @@ function createSettingsPanel() {
         'border-radius: 15px',
         'box-shadow: 0 10px 30px rgba(0,0,0,0.2)',
         'z-index: 99999',
-        'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif',
+        'font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif',
         'overflow: hidden',
         'color: #1C1B1F',
     ].join(';');
@@ -194,17 +194,19 @@ function createSettingsPanel() {
         '<div style="padding:20px 16px 16px;">',
         '  <label style="display:block; font-size:13px; font-weight:500; color:#49454F; margin-bottom:6px;">シークレットキーを入力してください</label>',
         '  <div id="tuat-key-container" style="position:relative; margin-bottom:8px;">',
-        '    <input type="password" id="tuat-cfg-key" placeholder="Base32形式のキーを入力"',
-        '      style="display:block; width:100%; padding:12px 44px 12px 12px; border:1px solid #CAC4D0; border-radius:4px; font-size:14px; box-sizing:border-box; outline:none; background:#fff; color:#1C1B1F; transition:border-color 0.2s;">',
+        '    <input type="text" id="tuat-cfg-key" placeholder="Base32形式のキーを入力"',
+        '      autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other"',
+        '      style="display:block; width:100%; padding:12px 44px 12px 12px; border:1px solid #CAC4D0; border-radius:4px; font-size:14px; box-sizing:border-box; outline:none; background:#fff; color:#1C1B1F; transition:border-color 0.2s; -webkit-text-security:disc;">',
         '    <span id="tuat-toggle-key" class="tuat-ms" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#49454F; user-select:none;">visibility</span>',
         '  </div>',
         // Saveボタン（シークレットキー入力欄の直下、横長）
         '  <div style="margin-bottom:14px;">',
         '    <button id="tuat-save-btn" style="width:100%; padding:8px 24px; background:#4d84b4; color:#fff; border:none; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; letter-spacing:0.3px; transition:background 0.2s;">Save</button>',
         '  </div>',
-        // TOTPプレビュー（中央） + 円形タイマー（右端）
-        '  <div style="position:relative; display:flex; align-items:center; justify-content:center; margin:0 0 4px;">',
-        '    <div id="tuat-totp-display" style="font-size:24px; font-weight:700; color:#1C1B1F; letter-spacing:4px; font-family:monospace;">未設定</div>',
+        // トークンラベル（左端） + TOTPプレビュー（中央） + 円形タイマー（右端）
+        '  <div style="position:relative; display:flex; align-items:center; justify-content:center; min-height:40px; margin:0 0 0;">',
+        '    <span style="position:absolute; left:0; font-size:12px; font-weight:500; color:#79747E;">トークン</span>',
+        '    <div id="tuat-totp-display" style="font-size:24px; font-weight:700; color:#1C1B1F; letter-spacing:4px; font-family:monospace;"></div>',
         '    <div id="tuat-timer-area" style="position:absolute; right:0; top:50%; transform:translateY(-50%); visibility:hidden;">',
         '      <svg id="tuat-timer-svg" width="40" height="40" viewBox="0 0 40 40" style="display:block;">',
         '        <circle cx="20" cy="20" r="16" fill="none" stroke="#E0E0E0" stroke-width="3"/>',
@@ -213,8 +215,8 @@ function createSettingsPanel() {
         '      </svg>',
         '    </div>',
         '  </div>',
-        // ステータス表示（生成キーの下に固定スペース）
-        '  <div style="text-align:center; min-height:20px; margin:2px 0 0;">',
+        // ステータス表示（生成キーの下に固定スペース確保）
+        '  <div style="text-align:center; height:20px; line-height:20px; margin:0;">',
         '    <span id="tuat-save-status" style="color:#198754; font-size:12px; font-weight:500; visibility:hidden;"></span>',
         '  </div>',
         '</div>',
@@ -258,15 +260,17 @@ function createSettingsPanel() {
     });
 
     // シークレットキー表示切替（Material Symbols）
+    var keyMasked = true;
     document.getElementById('tuat-toggle-key').addEventListener('click', function () {
         var inp = document.getElementById('tuat-cfg-key');
-        if (inp.type === 'password') {
-            inp.type = 'text';
+        if (keyMasked) {
+            inp.style.webkitTextSecurity = 'none';
             this.textContent = 'visibility_off';
         } else {
-            inp.type = 'password';
+            inp.style.webkitTextSecurity = 'disc';
             this.textContent = 'visibility';
         }
+        keyMasked = !keyMasked;
     });
 
     // 保存処理（共通関数）
@@ -298,7 +302,7 @@ function createSettingsPanel() {
                     setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
                 }
             } else {
-                document.getElementById('tuat-totp-display').textContent = '未設定';
+                document.getElementById('tuat-totp-display').textContent = '';
                 stopTotpTimer();
                 statusEl.textContent = '保存済み';
                 statusEl.style.visibility = 'visible';
@@ -329,7 +333,7 @@ function loadSettingsToPanel() {
             document.getElementById('tuat-totp-display').textContent = totp(items.key);
             startTotpTimer();
         } else {
-            document.getElementById('tuat-totp-display').textContent = '未設定';
+            document.getElementById('tuat-totp-display').textContent = '';
         }
     });
 }
