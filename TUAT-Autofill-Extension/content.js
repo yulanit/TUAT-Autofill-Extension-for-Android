@@ -220,8 +220,15 @@ function createSettingsPanel() {
         '</div>',
     ].join('\n');
 
-    // フッター（なし）
-    var footerHtml = '';
+    // Buy Me a Coffee フッター
+    var footerHtml = [
+        '<div style="border-top:1px solid #E0E0E0; padding:12px 16px; text-align:center;">',
+        '  <p style="font-size:12px; color:#79747E; margin:0 0 8px;">この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！</p>',
+        '  <a href="https://www.buymeacoffee.com/yate" target="_blank">',
+        '    <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height:36px; width:auto;">',
+        '  </a>',
+        '</div>',
+    ].join('\n');
 
     settingsPanel.innerHTML = headerHtml + bodyHtml + footerHtml;
     document.body.appendChild(settingsPanel);
@@ -366,6 +373,7 @@ function updateTotpTimer(skipTransition) {
     if (skipTransition || remaining === 30) {
         arc.style.transition = 'none';
         arc.setAttribute('stroke-dashoffset', offset);
+        // 強制リフローでtransition:noneを即座に適用
         arc.getBoundingClientRect();
         arc.style.transition = 'stroke-dashoffset 1s linear';
     } else {
