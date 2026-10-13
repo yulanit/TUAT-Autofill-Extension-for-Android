@@ -93,64 +93,40 @@ document.getElementByXPath = function(sValue) { var a = this.evaluate(sValue, th
     });
 })();
 
-function showDonationButton() {
-    const donationContainer = document.createElement('div');
-    donationContainer.style.position = 'fixed';
-    donationContainer.style.bottom = '0';
-    donationContainer.style.left = '0';
-    donationContainer.style.width = '100%';
-    donationContainer.style.textAlign = 'center';
-    donationContainer.style.backgroundColor = '#f8f9fa';
-    donationContainer.style.padding = '10px';
-    donationContainer.style.borderTop = '1px solid #dee2e6';
-    donationContainer.style.zIndex = '9999';
+function showSettingsButton() {
+    var logoUrl = chrome.runtime.getURL('logo.png');
 
-    // ⚙️ 設定ボタン（右上に配置）
-    const settingsBtn = document.createElement('div');
-    settingsBtn.innerText = '⚙';
-    settingsBtn.title = '拡張機能の設定を開く';
-    settingsBtn.style.cssText = [
-        'position: absolute',
-        'top: 8px',
-        'right: 12px',
-        'width: 36px',
-        'height: 36px',
+    var btn = document.createElement('div');
+    btn.title = 'TUAT Autofill 設定';
+    btn.style.cssText = [
+        'position: fixed',
+        'bottom: 20px',
+        'right: 16px',
+        'width: 48px',
+        'height: 48px',
         'border-radius: 50%',
-        'background: #0d6efd',
-        'color: #fff',
-        'font-size: 20px',
-        'line-height: 36px',
-        'text-align: center',
+        'background: #fff',
         'cursor: pointer',
+        'z-index: 99999',
+        'box-shadow: 0 2px 10px rgba(0,0,0,0.25)',
         'user-select: none',
         '-webkit-tap-highlight-color: transparent',
-        'box-shadow: 0 2px 6px rgba(0,0,0,0.2)',
+        'overflow: hidden',
+        'display: flex',
+        'align-items: center',
+        'justify-content: center',
     ].join(';');
-    settingsBtn.addEventListener('click', function () {
+
+    var img = document.createElement('img');
+    img.src = logoUrl;
+    img.style.cssText = 'width:40px; height:40px; pointer-events:none;';
+
+    btn.appendChild(img);
+    btn.addEventListener('click', function () {
         toggleSettingsPanel();
     });
 
-    const donationText = document.createElement('p');
-    donationText.innerText = 'この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！';
-    donationText.style.margin = '0 0 10px 0';
-    donationText.style.fontSize = '14px';
-
-    const donationLink = document.createElement('a');
-    donationLink.href = 'https://www.buymeacoffee.com/yate';
-    donationLink.target = '_blank';
-
-    const donationImage = document.createElement('img');
-    donationImage.src = 'https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png';
-    donationImage.alt = 'Buy Me A Coffee';
-    donationImage.style.height = '41px';
-    donationImage.style.width = '174px';
-
-    donationLink.appendChild(donationImage);
-    donationContainer.appendChild(settingsBtn);
-    donationContainer.appendChild(donationText);
-    donationContainer.appendChild(donationLink);
-
-    document.body.appendChild(donationContainer);
+    document.body.appendChild(btn);
 }
 
 // === インライン設定パネル ===
@@ -171,7 +147,7 @@ function createSettingsPanel() {
     settingsPanel = document.createElement('div');
     settingsPanel.style.cssText = [
         'position: fixed',
-        'bottom: 90px',
+        'bottom: 76px',
         'right: 12px',
         'width: min(320px, calc(100vw - 24px))',
         'background: #fff',
@@ -277,7 +253,7 @@ function loadSettingsToPanel() {
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', showDonationButton);
+    document.addEventListener('DOMContentLoaded', showSettingsButton);
 } else {
-    showDonationButton();
+    showSettingsButton();
 }
