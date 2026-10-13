@@ -201,7 +201,7 @@ function createSettingsPanel() {
         // TOTPプレビュー
         '  <div id="tuat-totp-display" style="text-align:center; font-size:28px; font-weight:700; color:#1C1B1F; margin:0 0 4px; letter-spacing:6px; font-family:monospace;">未設定</div>',
         // TOTPタイマーバー
-        '  <div id="tuat-timer-area" style="margin:0 0 16px; display:none;">',
+        '  <div id="tuat-timer-area" style="margin:0 0 16px; visibility:hidden;">',
         '    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">',
         '      <span style="font-size:11px; color:#79747E;">有効期限</span>',
         '      <span id="tuat-timer-text" style="font-size:11px; color:#49454F; font-weight:500;">30s</span>',
@@ -212,7 +212,7 @@ function createSettingsPanel() {
         '  </div>',
         // Saveボタン
         '  <button id="tuat-save-btn" style="width:100%; padding:10px 24px; background:#4d84b4; color:#fff; border:none; border-radius:20px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:0.5px; transition:background 0.2s;">Save</button>',
-        '  <p id="tuat-save-status" style="text-align:center; color:#198754; font-size:13px; margin:10px 0 0; display:none;"></p>',
+        '  <p id="tuat-save-status" style="text-align:center; color:#198754; font-size:13px; margin:10px 0 0; min-height:20px; visibility:hidden;"></p>',
         '</div>',
     ].join('\n');
 
@@ -281,24 +281,24 @@ function createSettingsPanel() {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(totpValue).then(function () {
                         statusEl.textContent = '✅ 保存しました（TOTP: ' + totpValue + ' をコピー済み）';
-                        statusEl.style.display = 'block';
-                        setTimeout(function () { statusEl.style.display = 'none'; }, 4000);
+                        statusEl.style.visibility = 'visible';
+                        setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 4000);
                     }).catch(function () {
                         statusEl.textContent = '✅ 保存しました';
-                        statusEl.style.display = 'block';
-                        setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
+                        statusEl.style.visibility = 'visible';
+                        setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
                     });
                 } else {
                     statusEl.textContent = '✅ 保存しました';
-                    statusEl.style.display = 'block';
-                    setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
+                    statusEl.style.visibility = 'visible';
+                    setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
                 }
             } else {
                 document.getElementById('tuat-totp-display').textContent = '未設定';
                 stopTotpTimer();
                 statusEl.textContent = '✅ 保存しました';
-                statusEl.style.display = 'block';
-                setTimeout(function () { statusEl.style.display = 'none'; }, 3000);
+                statusEl.style.visibility = 'visible';
+                setTimeout(function () { statusEl.style.visibility = 'hidden'; statusEl.textContent = ''; }, 3000);
             }
         });
     });
@@ -328,7 +328,7 @@ function startTotpTimer() {
     stopTotpTimer();
     var timerArea = document.getElementById('tuat-timer-area');
     if (!timerArea) return;
-    timerArea.style.display = 'block';
+    timerArea.style.visibility = 'visible';
     updateTotpTimer();
     totpTimerInterval = setInterval(updateTotpTimer, 1000);
 }
@@ -339,7 +339,7 @@ function stopTotpTimer() {
         totpTimerInterval = null;
     }
     var timerArea = document.getElementById('tuat-timer-area');
-    if (timerArea) timerArea.style.display = 'none';
+    if (timerArea) timerArea.style.visibility = 'hidden';
 }
 
 function updateTotpTimer() {
