@@ -127,11 +127,7 @@ function showDonationButton() {
         'box-shadow: 0 2px 6px rgba(0,0,0,0.2)',
     ].join(';');
     settingsBtn.addEventListener('click', function () {
-        try {
-            chrome.runtime.openOptionsPage();
-        } catch (e) {
-            window.open(chrome.runtime.getURL('options.html'), '_blank');
-        }
+        toggleSettingsPanel();
     });
 
     const donationText = document.createElement('p');
@@ -155,6 +151,129 @@ function showDonationButton() {
     donationContainer.appendChild(donationLink);
 
     document.body.appendChild(donationContainer);
+}
+
+// === インライン設定パネル ===
+var settingsPanel = null;
+
+function toggleSettingsPanel() {
+    if (settingsPanel) {
+        settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
+        if (settingsPanel.style.display === 'block') {
+            loadSettingsToPanel();
+        }
+        return;
+    }
+    createSettingsPanel();
+}
+
+function createSettingsPanel() {
+    settingsPanel = document.createElement('div');
+    settingsPanel.style.cssText = [
+        'position: fixed',
+        'bottom: 90px',
+        'right: 12px',
+        'width: min(320px, calc(100vw - 24px))',
+        'background: #fff',
+        'border-radius: 12px',
+        'box-shadow: 0 8px 32px rgba(0,0,0,0.25)',
+        'z-index: 99999',
+        'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        'overflow: hidden',
+    ].join(';');
+
+    // 共通スタイル
+    var labelStyle = 'display:block; font-size:13px; color:#555; margin-bottom:4px;';
+    var inputStyle = [
+        'display: block',
+        'width: 100%',
+        'padding: 8px 10px',
+        'margin-bottom: 12px',
+        'border: 1px solid #ced4da',
+        'border-radius: 6px',
+        'font-size: 14px',
+        'box-sizing: border-box',
+        'outline: none',
+    ].join(';');
+
+    settingsPanel.innerHTML = [
+        '<div style="padding:12px 16px; background:#0d6efd; color:#fff; display:flex; justify-content:space-between; align-items:center;">',
+        '  <strong style="font-size:15px;">TUAT Autofill 設定</strong>',
+        '  <span id="tuat-panel-close" style="cursor:pointer; font-size:22px; line-height:1; padding:0 4px;">×</span>',
+        '</div>',
+        '<div style="padding:16px;">',
+        '  <label style="' + labelStyle + '">ID</label>',
+        '  <input type="text" id="tuat-cfg-id" placeholder="s123456a" style="' + inputStyle + '">',
+        '  <div style="font-size:11px; color:#888; margin:-8px 0 12px;">s+数字6桁+アルファベットから構成されるID</div>',
+        '  <label style="' + labelStyle + '">Password</label>',
+        '  <input type="password" id="tuat-cfg-pass" style="' + inputStyle + '">',
+        '  <div style="font-size:11px; color:#888; margin:-8px 0 12px;">パスワードを保存する場合は入力（非推奨）</div>',
+        '  <label style="' + labelStyle + '">シークレットキー</label>',
+        '  <div style="display:flex; gap:6px; margin-bottom:12px;">',
+        '    <input type="password" id="tuat-cfg-key" style="' + inputStyle + 'margin-bottom:0; flex:1;">',
+        '    <button id="tuat-toggle-key" style="width:40px; border:1px solid #ced4da; border-radius:6px; background:#fff; font-size:16px; cursor:pointer; flex-shrink:0;">👁</button>',
+        '  </div>',
+        '  <div style="font-size:11px; color:#888; margin-bottom:12px;">ワンタイムパスワードの生成キー</div>',
+        '  <p id="tuat-totp-display" style="text-align:center; font-size:18px; font-weight:bold; color:#333; margin:12px 0; letter-spacing:2px;">現在のTOTP：未設定</p>',
+        '  <button id="tuat-save-btn" style="width:100%; padding:10px; background:#0d6efd; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:bold; cursor:pointer;">Save</button>',
+        '  <p id="tuat-save-status" style="text-align:center; color:#198754; font-size:13px; margin:8px 0 0; display:none;">✅ 保存しました</p>',
+        '</div>',
+    ].join('\n');
+
+    document.body.appendChild(settingsPanel);
+
+    // 閉じるボタン
+    document.getElementById('tuat-panel-close').addEventListener('click', function () {
+        settingsPanel.style.display = 'none';
+    });
+
+    // シークレットキー表示切替
+    document.getElementById('tuat-toggle-key').addEventListener('click', function () {
+        var keyInput = document.getElementById('tuat-cfg-key');
+        if (keyInput.type === 'password') {
+            keyInput.type = 'text';
+            this.textContent = '🔒';
+        } else {
+            keyInput.type = 'password';
+            this.textContent = '👁';
+        }
+    });
+
+    // 保存ボタン
+    document.getElementById('tuat-save-btn').addEventListener('click', function () {
+        var id   = document.getElementById('tuat-cfg-id').value;
+        var pass = document.getElementById('tuat-cfg-pass').value;
+        var key  = document.getElementById('tuat-cfg-key').value;
+
+        chrome.storage.local.set({ 'id': id, 'pass': pass, 'key': key }, function () {
+            // TOTPプレビュー更新
+            if (key && key.length > 0) {
+                document.getElementById('tuat-totp-display').textContent = '現在のTOTP：' + totp(key);
+            } else {
+                document.getElementById('tuat-totp-display').textContent = '現在のTOTP：未設定';
+            }
+            // 保存完了メッセージ
+            var status = document.getElementById('tuat-save-status');
+            status.style.display = 'block';
+            setTimeout(function () { status.style.display = 'none'; }, 3000);
+        });
+    });
+
+    // 既存データを読み込み
+    loadSettingsToPanel();
+}
+
+function loadSettingsToPanel() {
+    chrome.storage.local.get(['id', 'pass', 'key'], function (items) {
+        document.getElementById('tuat-cfg-id').value   = items.id   || '';
+        document.getElementById('tuat-cfg-pass').value  = items.pass || '';
+        document.getElementById('tuat-cfg-key').value   = items.key  || '';
+        if (items.key && items.key.length > 0) {
+            document.getElementById('tuat-totp-display').textContent = '現在のTOTP：' + totp(items.key);
+        } else {
+            document.getElementById('tuat-totp-display').textContent = '現在のTOTP：未設定';
+        }
+    });
 }
 
 if (document.readyState === 'loading') {
