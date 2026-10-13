@@ -208,7 +208,7 @@ function createSettingsPanel() {
         '    <div id="tuat-timer-area" style="position:absolute; right:0; top:50%; transform:translateY(-50%); visibility:hidden;">',
         '      <svg id="tuat-timer-svg" width="40" height="40" viewBox="0 0 40 40" style="display:block;">',
         '        <circle cx="20" cy="20" r="16" fill="none" stroke="#E0E0E0" stroke-width="3"/>',
-        '        <circle id="tuat-timer-arc" cx="20" cy="20" r="16" fill="none" stroke="#4d84b4" stroke-width="3" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="0" transform="rotate(-90 20 20)" style="transition:stroke-dashoffset 1s linear;"/>',
+        '        <circle id="tuat-timer-arc" cx="20" cy="20" r="16" fill="none" stroke="#4d84b4" stroke-width="3" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="0" transform="rotate(-90 20 20)"/>',
         '        <text id="tuat-timer-text" x="20" y="20" text-anchor="middle" dominant-baseline="central" fill="#49454F" font-size="11" font-weight="500">30</text>',
         '      </svg>',
         '    </div>',
@@ -322,6 +322,7 @@ function loadSettingsToPanel() {
             startTotpTimer();
         } else {
             document.getElementById('tuat-totp-display').textContent = '';
+            stopTotpTimer();
         }
     });
 }
@@ -338,7 +339,7 @@ function startTotpTimer() {
     var timerArea = document.getElementById('tuat-timer-area');
     if (!timerArea) return;
     timerArea.style.visibility = 'visible';
-    updateTotpTimer();
+    updateTotpTimer(true);
     totpTimerInterval = setInterval(updateTotpTimer, 1000);
 }
 
@@ -351,16 +352,26 @@ function stopTotpTimer() {
     if (timerArea) timerArea.style.visibility = 'hidden';
 }
 
-function updateTotpTimer() {
+function updateTotpTimer(skipTransition) {
     var remaining = getTotpRemaining();
     var arc = document.getElementById('tuat-timer-arc');
     var text = document.getElementById('tuat-timer-text');
     if (!arc || !text) return;
 
     text.textContent = remaining;
-    // 円弧の残量を計算（残り時間に応じてdashoffsetを変える）
-    var offset = TUAT_TIMER_CIRCUMFERENCE * (1 - remaining / 30);
-    arc.setAttribute('stroke-dashoffset', offset);
+    // 円弧の残量を計算（負の値で時計回りに減少）
+    var offset = -(TUAT_TIMER_CIRCUMFERENCE * (1 - remaining / 30));
+
+    // 初回表示・リセット時はアニメーションを省略
+    if (skipTransition || remaining === 30) {
+        arc.style.transition = 'none';
+        arc.setAttribute('stroke-dashoffset', offset);
+        arc.getBoundingClientRect();
+        arc.style.transition = 'stroke-dashoffset 1s linear';
+    } else {
+        arc.style.transition = 'stroke-dashoffset 1s linear';
+        arc.setAttribute('stroke-dashoffset', offset);
+    }
 
     // 残り5秒以下で警告色
     if (remaining <= 5) {
