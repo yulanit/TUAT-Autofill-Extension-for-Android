@@ -105,6 +105,35 @@ function showDonationButton() {
     donationContainer.style.borderTop = '1px solid #dee2e6';
     donationContainer.style.zIndex = '9999';
 
+    // ⚙️ 設定ボタン（右上に配置）
+    const settingsBtn = document.createElement('div');
+    settingsBtn.innerText = '⚙';
+    settingsBtn.title = '拡張機能の設定を開く';
+    settingsBtn.style.cssText = [
+        'position: absolute',
+        'top: 8px',
+        'right: 12px',
+        'width: 36px',
+        'height: 36px',
+        'border-radius: 50%',
+        'background: #0d6efd',
+        'color: #fff',
+        'font-size: 20px',
+        'line-height: 36px',
+        'text-align: center',
+        'cursor: pointer',
+        'user-select: none',
+        '-webkit-tap-highlight-color: transparent',
+        'box-shadow: 0 2px 6px rgba(0,0,0,0.2)',
+    ].join(';');
+    settingsBtn.addEventListener('click', function () {
+        try {
+            chrome.runtime.openOptionsPage();
+        } catch (e) {
+            window.open(chrome.runtime.getURL('options.html'), '_blank');
+        }
+    });
+
     const donationText = document.createElement('p');
     donationText.innerText = 'この拡張機能が役に立ったら、寄付を検討していただけると嬉しいです！';
     donationText.style.margin = '0 0 10px 0';
@@ -121,6 +150,7 @@ function showDonationButton() {
     donationImage.style.width = '174px';
 
     donationLink.appendChild(donationImage);
+    donationContainer.appendChild(settingsBtn);
     donationContainer.appendChild(donationText);
     donationContainer.appendChild(donationLink);
 
